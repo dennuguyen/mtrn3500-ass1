@@ -23,6 +23,7 @@ void check(GReturn code) {
     std::cerr << "GCLIB_ERROR " << code << ": ";
     switch (code) {
         case G_NO_ERROR:
+            std::cerr << G_NO_ERROR_S;
             break;
         case G_GCLIB_ERROR:
             std::cerr << G_GCLIB_ERROR_S;
@@ -172,6 +173,10 @@ float Galil::AnalogInput(uint8_t channel) {
 }
 
 void Galil::AnalogOutput(uint8_t channel, double voltage) {
+    std::stringstream Command;
+    Command << "AO " << (int)channel << "," << voltage << ";";
+    std::cout << Command.str().c_str() << std::endl;
+    Functions->GCommand(g, Command.str().c_str(), ReadBuffer, 0, NULL);
 }
 
 void Galil::AnalogInputRange(uint8_t channel, uint8_t range) {

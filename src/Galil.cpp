@@ -1,23 +1,7 @@
 #include "Galil.h"
 
 #include <cstdlib>
-#include <sstream>
-
-const char* CmdFmt::Modbus(char m, int n0, int n1, int n2, int n3, char* str) {
-    std::stringstream ss;
-    ss << "MB" << m << "=" << n0 << "," << n1 << ",";
-
-    if (1 <= n1 && n1 <= 4 || 15 <= n1 && n1 <= 16)
-        ss << n2 << "," << n3 << "," << str << ";";
-    else if (5 <= n1 && n1 <= 6)
-        ss << n2 << "," << n3 << ";";
-    else if (n1 == 7)
-        ss << str << ";";
-    else if (n1 == -1)
-        ss << n2 << "," << str << ";";
-
-    return ss.str().c_str();
-}
+#include <string>
 
 void check(GReturn code) {
     std::cerr << "GCLIB_ERROR " << code << ": ";
@@ -111,56 +95,39 @@ Galil::Galil(EmbeddedFunctions* Funcs, GCStringIn address)
     check(Functions->GOpen(address, &g));
 }
 
-Galil::~Galil() { Functions->GClose(g); }
+Galil::~Galil() {
+    DigitalOutput(0);
+    AnalogOutput(7, 0);
+    Functions->GClose(g);
+}
 
 void Galil::DigitalOutput(uint16_t value) {
-    Functions->GCommand(g,
-                        Commands.Modbus('h', 0, 6, value, 16, NULL),
-                        ReadBuffer,
-                        sizeof(ReadBuffer),
-                        0);
+    std::string Command = "OP " + std::to_string(value) + ";";
+    std::cout << Command.c_str() << std::endl;
+    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
 }
 
 void Galil::DigitalByteOutput(bool bank, uint8_t value) {
-    Functions->GCommand(g,
-                        Commands.Modbus('h', 0, 6, value, bank, NULL),
-                        ReadBuffer,
-                        sizeof(ReadBuffer),
-                        0);
+    std::string Command = "OP " + std::to_string(value << (bank * 8U)) + ";";
+    std::cout << Command.c_str() << std::endl;
+    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
 }
 
 void Galil::DigitalBitOutput(bool val, uint8_t bit) {
-    Functions->GCommand(g,
-                        Commands.Modbus('h', 0, 5, bit, val, NULL),
-                        ReadBuffer,
-                        sizeof(ReadBuffer),
-                        0);
+    std::string Command = "OB " + std::to_string(bit) + "," + std::to_string(val) + ";";
+    std::cout << Command.c_str() << std::endl;
+    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
 }
 
 uint16_t Galil::DigitalInput() {
-    Functions->GCommand(g,
-                        Commands.Modbus('h', 0, 2, 0, 16, NULL),
-                        ReadBuffer,
-                        sizeof(ReadBuffer),
-                        0);
     return ReadBuffer[0];
 }
 
 uint8_t Galil::DigitalByteInput(bool bank) {
-    Functions->GCommand(g,
-                        Commands.Modbus('h', 0, 2, 0, bank, NULL),
-                        ReadBuffer,
-                        sizeof(ReadBuffer),
-                        0);
     return ReadBuffer[0];
 }
 
 bool Galil::DigitalBitInput(uint8_t bit) {
-    Functions->GCommand(g,
-                        Commands.Modbus('h', 0, 2, bit, 1, NULL),
-                        ReadBuffer,
-                        sizeof(ReadBuffer),
-                        0);
     return ReadBuffer[0];
 }
 
@@ -169,14 +136,16 @@ bool Galil::CheckSuccessfulWrite() {
 }
 
 float Galil::AnalogInput(uint8_t channel) {
-    return 0.0;
+    std::string Command = "MG @AO[" + std::to_string(channel) + "];";
+    std::cout << Command.c_str() << std::endl;
+    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
+    return ReadBuffer[0];
 }
 
 void Galil::AnalogOutput(uint8_t channel, double voltage) {
-    std::stringstream Command;
-    Command << "AO " << (int)channel << "," << voltage << ";";
-    std::cout << Command.str().c_str() << std::endl;
-    Functions->GCommand(g, Command.str().c_str(), ReadBuffer, 0, NULL);
+    std::string Command = "AO " + std::to_string(channel) + "," + std::to_string(voltage) + ";";
+    std::cout << Command.c_str() << std::endl;
+    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
 }
 
 void Galil::AnalogInputRange(uint8_t channel, uint8_t range) {

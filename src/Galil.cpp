@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <string>
 
-void check(GReturn code) {
+static void check(GReturn code) {
     std::cerr << "GCLIB_ERROR " << code << ": ";
     switch (code) {
         case G_NO_ERROR:
@@ -152,13 +152,38 @@ void Galil::AnalogInputRange(uint8_t channel, uint8_t range) {
 }
 
 void Galil::WriteEncoder() {
+    std::string Command = "WE 0, 0;";
+    std::cout << Command.c_str() << std::endl;
+    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
 }
 
 int Galil::ReadEncoder() {
-    return 0;
+    std::string Command = "RE 0;";
+    std::cout << Command.c_str() << std::endl;
+    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
+    return ReadBuffer[0];
 }
 
 void Galil::setSetPoint(int s) { setPoint = s; }
 void Galil::setKp(double gain) { ControlParameters[0] = gain; }
 void Galil::setKi(double gain) { ControlParameters[1] = gain; }
 void Galil::setKd(double gain) { ControlParameters[2] = gain; }
+
+std::ostream& operator<<(std::ostream& output, Galil& galil)
+{
+    GSize info_len = 100;
+    GCStringOut info = new char[info_len];
+    check(galil.Functions->GInfo(galil.g, info, info_len));
+
+    GSize ver_len = 100;
+    GCStringOut ver = new char[ver_len];
+    check(galil.Functions->GVersion(ver, ver_len));
+
+    output << "info: " << info << std::endl << std::endl;
+    output << "ver: " << ver << std::endl << std::endl;
+
+    delete[] info;
+    delete[] ver;
+
+    return output;
+}

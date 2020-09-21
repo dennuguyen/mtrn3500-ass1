@@ -21,18 +21,8 @@ terminated by a semicolon ';'
 
 #include <chrono>
 #include <iostream>
-#include <string>
 
 #include "EmbeddedFunctions.h"
-
-/**
- * @brief CmdFmt is a utility class with static methods to return a formatted
- * string following the Galil command documentation.
- */
-class CmdFmt final {
-   public:
-    static const char* Modbus(char m, int n0, int n1, int n2, int n3, char* str);
-};
 
 class Galil {
    public:
@@ -87,5 +77,4 @@ class Galil {
     char ReadBuffer[1024];         // Buffer to restore responses from the Galil
     double ControlParameters[3];   // Contains the controller gain values: K_p, K_i, K_d in that order
     int setPoint;                  // Control Setpoint
-    CmdFmt Commands;               // Aggregates CmdFmt utility class
 };

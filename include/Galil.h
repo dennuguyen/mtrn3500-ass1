@@ -79,7 +79,9 @@ class Galil {
     char ReadBuffer[BUFFER_LEN];   // Buffer to restore responses from the Galil
     double ControlParameters[3];   // Contains the controller gain values: K_p, K_i, K_d in that order
     int setPoint;                  // Control Setpoint
+    GReturn LastCode;              // Status code from last executed command
 
    private:
     void call(std::string Command); // Helper function to making calls to GCommand
+    void check(GReturn code);       // Helper function to update LastCode and track errors
 };

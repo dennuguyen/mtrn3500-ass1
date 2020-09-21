@@ -24,6 +24,8 @@ terminated by a semicolon ';'
 
 #include "EmbeddedFunctions.h"
 
+constexpr int BUFFER_LEN = 1024;
+
 class Galil {
    public:
     Galil(){};                                            // Default constructor - leave as is
@@ -74,7 +76,10 @@ class Galil {
    protected:
     EmbeddedFunctions* Functions;  // Pointer to EmbeddedFunctions, through which all Galil Function calls will be made
     GCon g;                        // Connection handle for the Galil, passed through most Galil function calls
-    char ReadBuffer[1024];         // Buffer to restore responses from the Galil
+    char ReadBuffer[BUFFER_LEN];   // Buffer to restore responses from the Galil
     double ControlParameters[3];   // Contains the controller gain values: K_p, K_i, K_d in that order
     int setPoint;                  // Control Setpoint
+
+   private:
+    void call(std::string Command); // Helper function to making calls to GCommand
 };

@@ -7,17 +7,21 @@ static void userWait() {
     std::cin.ignore();
 }
 
+static void demonstration(Galil *galil) {
+    for (int i = 0; i < 2; i++) {
+        galil->AnalogOutput(7, 5);
+        galil->AnalogInput(7);
+        Sleep(1000);
+        galil->AnalogOutput(7, -5);
+        galil->AnalogInput(7);
+        Sleep(1000);
+    }
+}
+
 int main(void) {
     EmbeddedFunctions* embf = new EmbeddedFunctions();
     Galil* galil = new Galil(embf, "192.168.1.200 -d");
-    std::cout << *galil << std::endl;
-    galil->DigitalByteOutput(0, 3U);
-    for (int i = 0; i < 2; i++) {
-        galil->AnalogOutput(7, 5);
-        Sleep(1000);
-        galil->AnalogOutput(7, -5);
-        Sleep(1000);
-    }
+    demonstration(galil);
     delete galil;
     delete embf;
     userWait();

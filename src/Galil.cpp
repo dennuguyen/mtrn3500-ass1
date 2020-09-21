@@ -4,6 +4,10 @@
 #include <string>
 
 static void check(GReturn code) {
+    return;
+    if (code == G_NO_ERROR)
+        return;
+
     std::cerr << "GCLIB_ERROR " << code << ": ";
     switch (code) {
         case G_NO_ERROR:
@@ -93,42 +97,42 @@ static void check(GReturn code) {
 Galil::Galil(EmbeddedFunctions* Funcs, GCStringIn address)
     : Functions(Funcs), g(), ReadBuffer(), ControlParameters(), setPoint() {
     check(Functions->GOpen(address, &g));
+    std::cout << *this;
 }
 
 Galil::~Galil() {
     DigitalOutput(0);
     AnalogOutput(7, 0);
-    Functions->GClose(g);
+    check(Functions->GClose(g));
 }
 
 void Galil::DigitalOutput(uint16_t value) {
-    std::string Command = "OP " + std::to_string(value) + ";";
-    std::cout << Command.c_str() << std::endl;
-    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
+    call("OP " + std::to_string(value) + ";");
 }
 
 void Galil::DigitalByteOutput(bool bank, uint8_t value) {
-    std::string Command = "OP " + std::to_string(value << (bank * 8U)) + ";";
-    std::cout << Command.c_str() << std::endl;
-    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
+    call("OP " + std::to_string(value << (bank * 8U)) + ";");
 }
 
 void Galil::DigitalBitOutput(bool val, uint8_t bit) {
-    std::string Command = "OB " + std::to_string(bit) + "," + std::to_string(val) + ";";
-    std::cout << Command.c_str() << std::endl;
-    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
+    call("OB " + std::to_string(bit) + "," + std::to_string(val) + ";");
 }
 
 uint16_t Galil::DigitalInput() {
-    return ReadBuffer[0];
+    for (int i = 0; i < 16; i++)
+        call("MG @IN[" + std::to_string(i) + "];");
+    return (uint16_t)atoi(ReadBuffer);
 }
 
 uint8_t Galil::DigitalByteInput(bool bank) {
-    return ReadBuffer[0];
+    for (int i = 0; i < 8; i++)
+        call("MG @IN[" + std::to_string(i + bank * 8U) + "];");
+    return (uint8_t)atoi(ReadBuffer);
 }
 
 bool Galil::DigitalBitInput(uint8_t bit) {
-    return ReadBuffer[0];
+    call("MG @IN[" + std::to_string(bit) + "];");
+    return (bool)atoi(ReadBuffer);
 }
 
 bool Galil::CheckSuccessfulWrite() {
@@ -136,32 +140,25 @@ bool Galil::CheckSuccessfulWrite() {
 }
 
 float Galil::AnalogInput(uint8_t channel) {
-    std::string Command = "MG @AO[" + std::to_string(channel) + "];";
-    std::cout << Command.c_str() << std::endl;
-    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
-    return ReadBuffer[0];
+    call("MG @AN[" + std::to_string(channel) + "];");
+    return (float)atof(ReadBuffer);
 }
 
 void Galil::AnalogOutput(uint8_t channel, double voltage) {
-    std::string Command = "AO " + std::to_string(channel) + "," + std::to_string(voltage) + ";";
-    std::cout << Command.c_str() << std::endl;
-    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
+    call("AO " + std::to_string(channel) + "," + std::to_string(voltage) + ";");
 }
 
 void Galil::AnalogInputRange(uint8_t channel, uint8_t range) {
+    call("AQ " + std::to_string(channel) + "," + std::to_string(range) + ";");
 }
 
 void Galil::WriteEncoder() {
-    std::string Command = "WE 0, 0;";
-    std::cout << Command.c_str() << std::endl;
-    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
+    call("WE 0, 0;");
 }
 
 int Galil::ReadEncoder() {
-    std::string Command = "RE 0;";
-    std::cout << Command.c_str() << std::endl;
-    Functions->GCommand(g, Command.c_str(), ReadBuffer, 0, NULL);
-    return ReadBuffer[0];
+    call("RE 0;");
+    return atoi(ReadBuffer);
 }
 
 void Galil::setSetPoint(int s) { setPoint = s; }
@@ -179,11 +176,17 @@ std::ostream& operator<<(std::ostream& output, Galil& galil)
     GCStringOut ver = new char[ver_len];
     check(galil.Functions->GVersion(ver, ver_len));
 
-    output << "info: " << info << std::endl << std::endl;
-    output << "ver: " << ver << std::endl << std::endl;
+    output << info << std::endl << std::endl;
+    output << ver << std::endl << std::endl;
 
     delete[] info;
     delete[] ver;
 
     return output;
+}
+
+void Galil::call(std::string Command) {
+    std::cout << ":" << Command.c_str() << std::endl;
+    check(Functions->GCommand(g, Command.c_str(), ReadBuffer, BUFFER_LEN, NULL));
+    std::cout << ReadBuffer;
 }

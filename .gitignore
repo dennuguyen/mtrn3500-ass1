@@ -1,6 +1,7 @@
 **/.*/
 **/*.exe
 **/*.metagen
+**/*.ilk
 **/*.pdb
 **/x64/
 **/Debug/

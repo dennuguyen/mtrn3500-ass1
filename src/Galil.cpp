@@ -5,22 +5,26 @@
 
 Galil::Galil(EmbeddedFunctions* Funcs, GCStringIn address)
     : Functions(Funcs), g(), ReadBuffer(), ControlParameters(), setPoint() {
-    check(Functions->GOpen(address, &g));
-    std::cout << *this;
+    std::cout << std::endl << "====== INITIALISING =====" << std::endl << std::endl;
+    check(Functions->GOpen(address, &g)); // Open the connection
+    std::cout << *this;                   // Print GInfo and GVersion
+    call("IQ 65535;");                    // Set positive logic
+    std::cout << std::endl << "=========================" << std::endl << std::endl;
 }
 
 Galil::~Galil() {
-    DigitalOutput(0);
-    AnalogOutput(7, 0);
-    check(Functions->GClose(g));
+    std::cout << std::endl << "======== CLOSING ========" << std::endl << std::endl;
+    call("RS 0;");               // Reset the RIO
+    check(Functions->GClose(g)); // Close the connection
+    std::cout << std::endl << "=========================" << std::endl << std::endl;
 }
 
 void Galil::DigitalOutput(uint16_t value) {
-    call("OP " + std::to_string(value) + ";");
+    call("OP " + std::to_string(value & 0x00FF) + "," + std::to_string((value & 0xFF00) >> 8) + ";");
 }
 
 void Galil::DigitalByteOutput(bool bank, uint8_t value) {
-    call("OP " + std::to_string(value << (bank * 8U)) + ";");
+    call("OP " + std::to_string(value & (!bank * 8U)) + "," + std::to_string(value & (bank * 8U)) + ";");
 }
 
 void Galil::DigitalBitOutput(bool val, uint8_t bit) {
@@ -28,15 +32,21 @@ void Galil::DigitalBitOutput(bool val, uint8_t bit) {
 }
 
 uint16_t Galil::DigitalInput() {
-    for (int i = 0; i < 16; i++)
+    uint16_t result = 0;
+    for (unsigned int i = 0; i < 16; i++) {
         call("MG @IN[" + std::to_string(i) + "];");
-    return (uint16_t)atoi(ReadBuffer);
+        result |= (atoi(ReadBuffer) << i);
+    }
+    return result;
 }
 
 uint8_t Galil::DigitalByteInput(bool bank) {
-    for (int i = 0; i < 8; i++)
+    uint8_t result = 0;
+    for (int i = 0; i < 8; i++) {
         call("MG @IN[" + std::to_string(i + bank * 8U) + "];");
-    return (uint8_t)atoi(ReadBuffer);
+        result |= (atoi(ReadBuffer) << i);
+    }
+    return result;
 }
 
 bool Galil::DigitalBitInput(uint8_t bit) {

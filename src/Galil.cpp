@@ -4,10 +4,11 @@
 #include <string>
 
 Galil::Galil(EmbeddedFunctions* Funcs, GCStringIn address)
-    : Functions(Funcs), g(), ReadBuffer(), ControlParameters(), setPoint() {
+    : Functions(Funcs), g(0), ReadBuffer(""), ControlParameters{0, 0, 0}, setPoint(0), LastCode(G_NO_ERROR) {
     std::cout << std::endl << "====== INITIALISING =====" << std::endl << std::endl;
     check(Functions->GOpen(address, &g)); // Open the connection
     std::cout << *this;                   // Print GInfo and GVersion
+    call("RS 0;");                        // Reset the RIO
     call("IQ 65535;");                    // Set positive logic
     std::cout << std::endl << "=========================" << std::endl << std::endl;
 }

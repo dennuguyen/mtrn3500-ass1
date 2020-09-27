@@ -13,17 +13,18 @@ static void userBinaryInput(int* input);
 static void userIntInput(int* input);
 static void userWait();
 static auto timeDiff(std::chrono::steady_clock::time_point later, std::chrono::steady_clock::time_point before) -> std::chrono::milliseconds;
-static uint16_t getNthBit(uint16_t value, int n);
-static void printBits(uint16_t value);
+static bool getNthBit(int value, int n);
+static std::bitset<16> itob(int value);
+static int btoi(std::bitset<16> value);
 
 int main(void) {
     EmbeddedFunctions* embf = new EmbeddedFunctions();
     Galil* galil = new Galil(embf, "192.168.1.120 -d");
     //demonstration(galil);
-    galil->DigitalOutput(0);
     int bits = 0;
     userBinaryInput(&bits);
     galil->DigitalOutput(bits);
+    std::cout << itob(galil->DigitalInput()) << std::endl;
     userWait();
     delete galil;
     delete embf;
@@ -56,7 +57,7 @@ static void userBinaryInput(int* input) {
     std::cin >> bits;
     std::cin.clear();
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    *input = bits.to_ulong();
+    *input = btoi(bits);
 }
 
 // Gets an int from cin
@@ -78,13 +79,16 @@ static auto timeDiff(std::chrono::steady_clock::time_point later, std::chrono::s
 }
 
 // Get nth bit
-static uint16_t getNthBit(uint16_t value, int n) {
+static bool getNthBit(int value, int n) {
     return (value >> n) & 1;
 }
 
-// Print bits from MSB to LSB
-static void printBits(uint16_t value) {
-    for (int i = 15; i >= 0; i--)
-        std::cout << ((value >> i) & 1);
-    std::cout << std::endl;
+// Convert int to bitset<16>
+static std::bitset<16> itob(int value) {
+    return std::bitset<16>(value);
+}
+
+// Convert bitset<16> to int
+static int btoi(std::bitset<16> value) {
+    return value.to_ulong();
 }

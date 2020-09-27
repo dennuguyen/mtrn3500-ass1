@@ -35,7 +35,7 @@ uint16_t Galil::DigitalInput() {
     uint16_t result = 0;
     for (unsigned int i = 0; i < 16; i++) {
         call("MG @IN[" + std::to_string(i) + "];");
-        result |= (atoi(ReadBuffer) << i);
+        result |= (std::stoi(ReadBuffer) << i);
     }
     return result;
 }
@@ -44,14 +44,14 @@ uint8_t Galil::DigitalByteInput(bool bank) {
     uint8_t result = 0;
     for (int i = 0; i < 8; i++) {
         call("MG @IN[" + std::to_string(i + bank * 8U) + "];");
-        result |= (atoi(ReadBuffer) << i);
+        result |= (std::stoi(ReadBuffer) << i);
     }
     return result;
 }
 
 bool Galil::DigitalBitInput(uint8_t bit) {
     call("MG @IN[" + std::to_string(bit) + "];");
-    return (bool)atoi(ReadBuffer);
+    return (bool)std::stoi(ReadBuffer);
 }
 
 bool Galil::CheckSuccessfulWrite() {
@@ -60,7 +60,7 @@ bool Galil::CheckSuccessfulWrite() {
 
 float Galil::AnalogInput(uint8_t channel) {
     call("MG @AN[" + std::to_string(channel) + "];");
-    return (float)atof(ReadBuffer);
+    return std::stof(ReadBuffer);
 }
 
 void Galil::AnalogOutput(uint8_t channel, double voltage) {
@@ -77,7 +77,7 @@ void Galil::WriteEncoder() {
 
 int Galil::ReadEncoder() {
     call("RE 0;");
-    return atoi(ReadBuffer);
+    return std::stoi(ReadBuffer);
 }
 
 void Galil::setSetPoint(int s) { setPoint = s; }

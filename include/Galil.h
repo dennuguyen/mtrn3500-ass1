@@ -28,9 +28,9 @@ constexpr int BUFFER_LEN = 1024;
 
 class Galil {
    public:
-    Galil(){};                                            // Default constructor - leave as is
+    Galil(){};                                            // Default constructor
     Galil(EmbeddedFunctions* Funcs, GCStringIn address);  // Constructor with EmbeddedFunciton initialization
-    ~Galil();                                             // Default destructor - leave as is
+    ~Galil();                                             // Default destructor
 
     // DIGITAL OUTPUTS
     void DigitalOutput(uint16_t value);                // Write to all 16 bits of digital output, 1 command to the Galil

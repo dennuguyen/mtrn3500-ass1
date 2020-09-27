@@ -13,9 +13,10 @@ static void userBinaryInput(int* input);
 static void userIntInput(int* input);
 static void userWait();
 static auto timeDiff(std::chrono::steady_clock::time_point later, std::chrono::steady_clock::time_point before) -> std::chrono::milliseconds;
-static bool getNthBit(int value, int n);
-static std::bitset<16> itob(int value);
-static int btoi(std::bitset<16> value);
+static bool getBit(int value, int n);
+static uint8_t getByte(bool bank, uint16_t value);
+static std::bitset<16> itob(uint16_t value);
+static uint16_t btoi(std::bitset<16> value);
 
 int main(void) {
     EmbeddedFunctions* embf = new EmbeddedFunctions();
@@ -79,16 +80,21 @@ static auto timeDiff(std::chrono::steady_clock::time_point later, std::chrono::s
 }
 
 // Get nth bit
-static bool getNthBit(int value, int n) {
+static bool getBit(int value, int n) {
     return (value >> n) & 1;
 }
 
-// Convert int to bitset<16>
-static std::bitset<16> itob(int value) {
+// Get high or low byte from 16 bit int
+static uint8_t getByte(bool bank, uint16_t value) {
+    return value & (0x00FF ^ (bank * 0xFFFF));
+}
+
+// Convert uint16_t to bitset<16>
+static std::bitset<16> itob(uint16_t value) {
     return std::bitset<16>(value);
 }
 
-// Convert bitset<16> to int
-static int btoi(std::bitset<16> value) {
+// Convert bitset<16> to uint16_t
+static uint16_t btoi(std::bitset<16> value) {
     return value.to_ulong();
 }

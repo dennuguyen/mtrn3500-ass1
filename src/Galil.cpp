@@ -88,10 +88,10 @@ void Galil::setKd(double gain) { ControlParameters[2] = gain; }
 
 std::ostream& operator<<(std::ostream& output, Galil& galil)
 {
-    galil.check(galil.Functions->GInfo(galil.g, ReadBuffer, BUFFER_LEN));
-    output << ReadBuffer << std::endl << std::endl;
-    galil.check(galil.Functions->GVersion(ReadBuffer, BUFFER_LEN));
-    output << ReadBuffer << std::endl << std::endl;
+    galil.check(galil.Functions->GInfo(galil.g, galil.ReadBuffer, BUFFER_LEN));
+    output << galil.ReadBuffer << std::endl << std::endl;
+    galil.check(galil.Functions->GVersion(galil.ReadBuffer, BUFFER_LEN));
+    output << galil.ReadBuffer << std::endl << std::endl;
     return output;
 }
 

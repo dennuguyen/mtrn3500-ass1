@@ -88,20 +88,10 @@ void Galil::setKd(double gain) { ControlParameters[2] = gain; }
 
 std::ostream& operator<<(std::ostream& output, Galil& galil)
 {
-    GSize info_len = 100;
-    GCStringOut info = new char[info_len];
-    galil.check(galil.Functions->GInfo(galil.g, info, info_len));
-
-    GSize ver_len = 100;
-    GCStringOut ver = new char[ver_len];
-    galil.check(galil.Functions->GVersion(ver, ver_len));
-
-    output << info << std::endl << std::endl;
-    output << ver << std::endl << std::endl;
-
-    delete[] info;
-    delete[] ver;
-
+    galil.check(galil.Functions->GInfo(galil.g, ReadBuffer, BUFFER_LEN));
+    output << ReadBuffer << std::endl << std::endl;
+    galil.check(galil.Functions->GVersion(ReadBuffer, BUFFER_LEN));
+    output << ReadBuffer << std::endl << std::endl;
     return output;
 }
 

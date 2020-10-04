@@ -12,20 +12,24 @@ static void demonstration(Galil* galil);
 static void userBinaryInput(int* input);
 static void userIntInput(int* input);
 static void userWait();
+static void printInt(int value);
 static auto timeDiff(std::chrono::steady_clock::time_point later, std::chrono::steady_clock::time_point before) -> std::chrono::milliseconds;
 static bool getBit(int value, int n);
 static uint8_t getByte(bool bank, uint16_t value);
 static std::bitset<16> itob(uint16_t value);
 static uint16_t btoi(std::bitset<16> value);
+static float dac(uint8_t value);
+static uint16_t adc(float value);
+static void route(Galil* galil, uint8_t value);
 
 int main(void) {
     EmbeddedFunctions* embf = new EmbeddedFunctions();
     Galil* galil = new Galil(embf, "192.168.1.120 -d");
     //demonstration(galil);
-    int bits = 0;
-    userBinaryInput(&bits);
-    galil->DigitalOutput(bits);
-    std::cout << itob(galil->DigitalInput()) << std::endl;
+    galil->DigitalOutput(30 << 8U);
+    galil->DigitalByteOutput(1, 30);
+    printInt(galil->DigitalInput());
+    printInt(galil->DigitalByteInput(1));
     userWait();
     delete galil;
     delete embf;
@@ -74,6 +78,11 @@ static void userWait() {
     std::cin.ignore();
 }
 
+// Print an integer value after unsigned typecast
+static void printInt(int value) {
+    std::cout << (unsigned)value << std::endl;
+}
+
 // Helper function to get the time difference
 static auto timeDiff(std::chrono::steady_clock::time_point later, std::chrono::steady_clock::time_point before) -> std::chrono::milliseconds {
     return std::chrono::duration_cast<std::chrono::milliseconds>(later - before);
@@ -97,4 +106,21 @@ static std::bitset<16> itob(uint16_t value) {
 // Convert bitset<16> to uint16_t
 static uint16_t btoi(std::bitset<16> value) {
     return value.to_ulong();
+}
+
+// Digital to analog converter
+static float dac(uint8_t value) {
+    return -5 / 127 * ((float)value - 128);
+}
+
+// Analog to digital converter
+static uint16_t adc(float value) {
+    return -127 / 5 * value + 128;
+}
+
+// Route digital output to analog output 7
+static void route(Galil* galil, uint8_t value) {
+    galil->DigitalOutput(value);
+    float voltage = galil->AnalogInput(0);
+    galil->AnalogOutput(7, voltage);
 }

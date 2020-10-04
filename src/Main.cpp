@@ -13,6 +13,7 @@ static void userBinaryInput(int* input);
 static void userIntInput(int* input);
 static void userWait();
 static void printInt(int value);
+static void printFloat(float value);
 static auto timeDiff(std::chrono::steady_clock::time_point later, std::chrono::steady_clock::time_point before) -> std::chrono::milliseconds;
 static bool getBit(int value, int n);
 static uint8_t getByte(bool bank, uint16_t value);
@@ -20,16 +21,14 @@ static std::bitset<16> itob(uint16_t value);
 static uint16_t btoi(std::bitset<16> value);
 static float dac(uint8_t value);
 static uint16_t adc(float value);
-static void route(Galil* galil, uint8_t value);
+static void di2dvm2motor(Galil* galil, uint8_t value);
+static void motorSpeed(Galil* galil);
+static void motorPosition(Galil* galil);
 
 int main(void) {
     EmbeddedFunctions* embf = new EmbeddedFunctions();
     Galil* galil = new Galil(embf, "192.168.1.120 -d");
     //demonstration(galil);
-    galil->DigitalOutput(30 << 8U);
-    galil->DigitalByteOutput(1, 30);
-    printInt(galil->DigitalInput());
-    printInt(galil->DigitalByteInput(1));
     userWait();
     delete galil;
     delete embf;
@@ -83,6 +82,11 @@ static void printInt(int value) {
     std::cout << (unsigned)value << std::endl;
 }
 
+// Print a float value
+static void printFloat(float value) {
+    std::cout << value << std::endl;
+}
+
 // Helper function to get the time difference
 static auto timeDiff(std::chrono::steady_clock::time_point later, std::chrono::steady_clock::time_point before) -> std::chrono::milliseconds {
     return std::chrono::duration_cast<std::chrono::milliseconds>(later - before);
@@ -110,17 +114,39 @@ static uint16_t btoi(std::bitset<16> value) {
 
 // Digital to analog converter
 static float dac(uint8_t value) {
-    return -5 / 127 * ((float)value - 128);
+    return 5.0 / 127.0 * (128.0 - value);
 }
 
 // Analog to digital converter
 static uint16_t adc(float value) {
-    return -127 / 5 * value + 128;
+    return 128.0 - 127.0 / 5.0 * value;
 }
 
-// Route digital output to analog output 7
-static void route(Galil* galil, uint8_t value) {
+// Write digital input value to digital voltmeter to motor
+static void di2dvm2motor(Galil* galil, uint8_t value) {
     galil->DigitalOutput(value);
     float voltage = galil->AnalogInput(0);
     galil->AnalogOutput(7, voltage);
+}
+
+// Control the motor speed
+static void motorSpeed(Galil* galil) {
+    galil->AnalogOutput(7, 0);
+    galil->WriteEncoder();
+    galil->setSetPoint(10);
+    galil->setKd(0.1);
+    galil->setKi(0.1);
+    galil->setKp(1);
+    galil->SpeedControl(true);
+}
+
+// Control the motor position
+static void motorPosition(Galil* galil) {
+    galil->AnalogOutput(7, 0);
+    galil->WriteEncoder();
+    galil->setSetPoint(10);
+    galil->setKd(0.1);
+    galil->setKi(0.1);
+    galil->setKp(1);
+    galil->PositionControl(true);
 }

@@ -77,7 +77,7 @@ void Galil::WriteEncoder() {
 }
 
 int Galil::ReadEncoder() {
-    call("RE 0;");
+    call("QE 0;");
     return std::stoi(ReadBuffer);
 }
 

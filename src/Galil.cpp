@@ -25,7 +25,7 @@ void Galil::DigitalOutput(uint16_t value) {
 }
 
 void Galil::DigitalByteOutput(bool bank, uint8_t value) {
-    call("OP " + std::to_string(value & (!bank * 8U)) + "," + std::to_string(value & (bank * 8U)) + ";");
+    call("OP " + std::to_string(value & (!bank * 0xFF)) + "," + std::to_string(value & (bank * 0xFF)) + ";");
 }
 
 void Galil::DigitalBitOutput(bool val, uint8_t bit) {
@@ -43,7 +43,7 @@ uint16_t Galil::DigitalInput() {
 
 uint8_t Galil::DigitalByteInput(bool bank) {
     uint8_t result = 0;
-    for (int i = 0; i < 8; i++) {
+    for (unsigned int i = 0; i < 8; i++) {
         call("MG @IN[" + std::to_string(i + bank * 8U) + "];");
         result |= (std::stoi(ReadBuffer) << i);
     }

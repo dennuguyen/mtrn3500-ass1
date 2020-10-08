@@ -5,19 +5,19 @@
 
 Galil::Galil(EmbeddedFunctions* Funcs, GCStringIn address)
     : Functions(Funcs), g(0), ReadBuffer(""), ControlParameters{0, 0, 0}, setPoint(0), LastCode(G_NO_ERROR) {
-    std::cout << std::endl << "====== INITIALISING =====" << std::endl << std::endl;
+    // std::cout << std::endl << "====== INITIALISING =====" << std::endl << std::endl;
     check(Functions->GOpen(address, &g)); // Open the connection
-    std::cout << *this;                   // Print GInfo and GVersion
+    // std::cout << *this;                   // Print GInfo and GVersion
     call("RS 0;");                        // Reset the RIO
     call("IQ 65535;");                    // Set positive logic
-    std::cout << std::endl << "=========================" << std::endl << std::endl;
+    // std::cout << std::endl << "=========================" << std::endl << std::endl;
 }
 
 Galil::~Galil() {
-    std::cout << std::endl << "======== CLOSING ========" << std::endl << std::endl;
+    // std::cout << std::endl << "======== CLOSING ========" << std::endl << std::endl;
     call("RS 0;");               // Reset the RIO
     check(Functions->GClose(g)); // Close the connection
-    std::cout << std::endl << "=========================" << std::endl << std::endl;
+    // std::cout << std::endl << "=========================" << std::endl << std::endl;
 }
 
 void Galil::DigitalOutput(uint16_t value) {
@@ -96,9 +96,9 @@ std::ostream& operator<<(std::ostream& output, Galil& galil)
 }
 
 void Galil::call(std::string Command) {
-    std::cout << ":" << Command.c_str() << std::endl;
+    // std::cout << ":" << Command.c_str() << std::endl;
     check(Functions->GCommand(g, Command.c_str(), ReadBuffer, BUFFER_LEN, NULL));
-    std::cout << ReadBuffer;
+    // std::cout << ReadBuffer;
 }
 
 void Galil::check(GReturn code) {

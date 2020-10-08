@@ -14,7 +14,7 @@ static void userIntInput(int* input);
 static void userWait();
 static void printInt(int value);
 static void printFloat(float value);
-static auto timeDiff(std::chrono::steady_clock::time_point later, std::chrono::steady_clock::time_point before) -> std::chrono::milliseconds;
+static std::chrono::milliseconds timeDiff(std::chrono::steady_clock::time_point later, std::chrono::steady_clock::time_point before);
 static bool getBit(int value, int n);
 static uint8_t getByte(bool bank, uint16_t value);
 static std::bitset<16> itob(uint16_t value);
@@ -29,6 +29,8 @@ int main(void) {
     EmbeddedFunctions* embf = new EmbeddedFunctions();
     Galil* galil = new Galil(embf, "192.168.1.120 -d");
     //demonstration(galil);
+    galil->WriteEncoder();
+    galil->ReadEncoder();
     userWait();
     delete galil;
     delete embf;
@@ -88,7 +90,7 @@ static void printFloat(float value) {
 }
 
 // Helper function to get the time difference
-static auto timeDiff(std::chrono::steady_clock::time_point later, std::chrono::steady_clock::time_point before) -> std::chrono::milliseconds {
+static std::chrono::milliseconds timeDiff(std::chrono::steady_clock::time_point later, std::chrono::steady_clock::time_point before) {
     return std::chrono::duration_cast<std::chrono::milliseconds>(later - before);
 }
 

@@ -15,12 +15,10 @@ terminated by a semicolon ';'
 */
 
 #pragma once
-#include <Windows.h>
-#include <stdint.h>
-#include <stdio.h>
 
-#include <chrono>
 #include <iostream>
+#include <stdint.h>
+#include <Windows.h>
 
 #include "EmbeddedFunctions.h"
 

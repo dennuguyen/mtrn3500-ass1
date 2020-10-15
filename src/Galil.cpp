@@ -52,29 +52,21 @@ void Galil::DigitalBitOutput(bool val, uint8_t bit) {
 
 /**
  * Reads from the 16 digital input pins
- * 
- * Makes individual calls to MG @IN and OR's the bitshifted result
  */
 uint16_t Galil::DigitalInput() {
     uint16_t result = 0;
-    for (unsigned int i = 0; i < 16; i++) {
-        call("MG @IN[" + std::to_string(i) + "];");
-        result |= (std::stoi(ReadBuffer) << i);
-    }
+    for (unsigned int i = 0; i < 16; i++)
+        result |= (DigitalBitInput(i) << i);
     return result;
 }
 
 /**
  * Reads from the 8 digital input pins specified by bank
- *
- * Makes individual calls to MG @IN and OR's the bitshifted result
  */
 uint8_t Galil::DigitalByteInput(bool bank) {
     uint8_t result = 0;
-    for (unsigned int i = 0; i < 8; i++) {
-        call("MG @IN[" + std::to_string(i + bank * 8U) + "];");
-        result |= (std::stoi(ReadBuffer) << i);
-    }
+    for (unsigned int i = 0; i < 8; i++)
+        result |= (DigitalBitInput(i + bank * 8U) << i);
     return result;
 }
 

@@ -1,3 +1,10 @@
+/**
+ * Author: Dan Nguyen (z5206032)
+ * Submission Date: 16/10/2020
+ * 
+ * C++ wrapper implementation of Galil commands
+ */
+
 #include "Galil.h"
 
 #include <cstdlib>

@@ -4,7 +4,7 @@
 #include <string>
 
 /**
- * Constructor takes in an EmbeddedFunctions object and Galil address, resets the Rio and sets positive logic
+ * Constructor prepares Rio for demonstration
  */
 Galil::Galil(EmbeddedFunctions* Funcs, GCStringIn address)
     : Functions(Funcs), g(0), ReadBuffer(""), ControlParameters{0, 0, 0}, setPoint(0), LastCode(G_NO_ERROR) {

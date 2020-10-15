@@ -82,6 +82,6 @@ class Galil {
     GReturn LastCode;              // Status code from last executed command
 
    private:
-    void call(std::string Command); // Helper function to making calls to GCommand
-    void check(GReturn code);       // Helper function to update LastCode and track errors
+    void call(std::string Command); // Helper function for making calls to GCommand
+    void check(GReturn code);       // Helper function to update LastCode and debug errors
 };

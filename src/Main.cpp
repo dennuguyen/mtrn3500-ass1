@@ -28,9 +28,7 @@ static void motorPosition(Galil* galil);
 int main(void) {
     EmbeddedFunctions* embf = new EmbeddedFunctions();
     Galil* galil = new Galil(embf, "192.168.1.120 -d");
-    //demonstration(galil);
-    galil->WriteEncoder();
-    galil->ReadEncoder();
+    demonstration(galil);
     userWait();
     delete galil;
     delete embf;
@@ -40,6 +38,7 @@ int main(void) {
 /**************************************************/
 // Write code here for demonstration
 static void demonstration(Galil* galil) {
+    /*
     using namespace std::chrono_literals;
     auto start = std::chrono::steady_clock::now();
     while (timeDiff(std::chrono::steady_clock::now(), start) < 1h) {
@@ -53,6 +52,7 @@ static void demonstration(Galil* galil) {
         }
 
     }
+    */
     userWait();
 }
 /**************************************************/

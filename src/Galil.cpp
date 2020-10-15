@@ -25,10 +25,10 @@ void Galil::DigitalOutput(uint16_t value) {
 }
 
 void Galil::DigitalByteOutput(bool bank, uint8_t value) {
-	if (bank)
-		call("OP ," + std::to_string(value) + ";");
-	else
-		call("OP " + std::to_string(value) + ", ;");
+    if (bank)
+        call("OP ," + std::to_string(value) + ";");
+    else
+        call("OP " + std::to_string(value) + ", ;");
 }
 
 void Galil::DigitalBitOutput(bool val, uint8_t bit) {

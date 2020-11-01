@@ -1,12 +1,12 @@
-#include "Galil.h"
-
 #include <bitset>
 #include <chrono>
 #include <limits>
 #include <thread>
 #include <Windows.h>
 
-#undef max // undefine Windows max macro
+#include "Galil.h"
+
+#undef max  // undefine Windows max macro
 
 static void demonstration(Galil* galil);
 static void userBinaryInput(int* input);
